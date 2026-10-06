@@ -30,7 +30,7 @@ jobs:
           make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- msm8974_defconfig
           scripts/kconfig/merge_config.sh -m .config arch/arm/configs/victara.config
           make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- olddefconfig
-          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j"$(nproc)" zImage dtbs
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j"$(nproc)" zImage dtbs modules
           test -s arch/arm/boot/zImage
           test -s arch/arm/boot/dts/qcom/msm8974pro-motorola-victara.dtb
           KREL="$(make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -s kernelrelease)"
