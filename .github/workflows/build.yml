@@ -1,0 +1,46 @@
+name: Build msm8974 kernel
+
+on:
+  push:
+    branches: [victara]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: victara
+          fetch-depth: 1
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yqq bc bison flex gcc-arm-linux-gnueabihf git gzip libssl-dev make python3
+
+      - name: Build zImage and DTB
+        run: |
+          set -euxo pipefail
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- msm8974_defconfig
+          scripts/kconfig/merge_config.sh -m .config arch/arm/configs/victara.config
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- olddefconfig
+          make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j"$(nproc)" zImage dtbs
+          test -s arch/arm/boot/zImage
+          test -s arch/arm/boot/dts/qcom/msm8974pro-motorola-victara.dtb
+          KREL="$(make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -s kernelrelease)"
+          echo "built $KREL"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: msm8974-victara-kernel
+          path: |
+            arch/arm/boot/zImage
+            arch/arm/boot/dts/qcom/msm8974pro-motorola-victara.dtb
+          if-no-files-found: error
