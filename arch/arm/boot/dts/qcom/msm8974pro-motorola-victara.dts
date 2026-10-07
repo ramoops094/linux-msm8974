@@ -729,3 +729,13 @@
 
 	qcom,init-seq = /bits/ 8 <0x1 0x64>;
 };
+
+&pronto {
+	status = "okay";
+
+	smd-edge {
+		wcnss {
+			status = "okay";
+		};
+	};
+};
